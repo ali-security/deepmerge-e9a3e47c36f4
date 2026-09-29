@@ -3,3 +3,17 @@ node_js:
   - "12"
   - "10"
   - "8"
+jobs:
+  include:
+    # engines floor is node >=0.10. rollup/typescript/ts-node need a newer Node,
+    # and test/merge.js (arrow functions, template literals) and
+    # test/prototype-poisoning.js (computed Symbol keys) use ES6 syntax, so this
+    # leg installs + builds dist/cjs.js under Node 12, then switches to Node 0.10
+    # and runs tape on the ES5 test files only.
+    - name: "Node 0.10 (ES5 tests against built dist)"
+      node_js: "12"
+      script:
+        - npm run build
+        - nvm install 0.10
+        - node --version
+        - node node_modules/tape/bin/tape test/custom-array-merge.js test/custom-is-mergeable-object.js test/merge-all.js

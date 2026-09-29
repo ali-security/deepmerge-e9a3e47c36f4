@@ -1,0 +1,32 @@
+# Tests run on Travis (.travis.yml); this workflow only builds and packs the release tarball.
+name: seal-build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 12.8.1
+
+      - run: node --version && npm --version
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm pack
+
+      - run: ls -l deepmerge-*.tgz && tar tzvf deepmerge-*.tgz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deepmerge-tgz
+          path: deepmerge-*.tgz
+          if-no-files-found: error
